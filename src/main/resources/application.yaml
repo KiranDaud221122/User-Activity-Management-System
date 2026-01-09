@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: operation
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/operation_db
+    username: postgres
+    password: Kiran@2211
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # MongoDB Config
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: operation_db
+      auto-index-creation: true
+
+
+server:
+  port: 8082
+
