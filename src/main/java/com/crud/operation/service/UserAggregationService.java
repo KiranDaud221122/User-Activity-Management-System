@@ -29,10 +29,8 @@ public class UserAggregationService {
 
         log.info("Fetching user with activities for userId: {}", userId);
 
-        // 1️⃣ Fetch user from Postgres
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
+        // Fetch user from Postgres
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         UserResponseDto userDto = UserResponseDto.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -42,7 +40,7 @@ public class UserAggregationService {
                 .updatedAt(user.getUpdatedAt())
                 .build();
 
-        // 2️⃣ Fetch activities from Mongo
+        //  Fetch activities from Mongo
         List<UserActivity> activities = userActivityRepository.findByUserId(userId);
         log.info("Found {} activities for userId {}", activities.size(), userId);
 
@@ -55,7 +53,7 @@ public class UserAggregationService {
                 continue;
             }
 
-            // 3️⃣ Fetch activity details using activityId
+            // Fetch activity details using activityId
             ActivityDetails details = activityDetailsRepository.findByActivityDetailsId(activity.getActivityId()).orElse(null);
             if (details == null) {
                 log.warn("No activity details found for activityId: {}", activity.getActivityId());

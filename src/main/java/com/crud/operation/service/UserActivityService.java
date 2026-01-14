@@ -17,15 +17,6 @@ public class UserActivityService {
 
     private final UserActivityRepository userActivityRepository;
 
-//    public UserActivity create(UserActivity userActivity) {
-//        log.info("Creating new user activity for userId: {}", userActivity.getUserId());
-//
-//        userActivity.setCreatedAt(LocalDateTime.now());
-//        UserActivity saved = userActivityRepository.save(userActivity);
-//
-//        log.info("User activity created successfully with id: {}", saved.getId());
-//        return saved;
-//    }
 
     public UserActivity create(UserActivity userActivity) {
         userActivity.setCreatedAt(LocalDateTime.now());

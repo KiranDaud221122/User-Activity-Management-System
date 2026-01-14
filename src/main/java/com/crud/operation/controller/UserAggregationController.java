@@ -18,12 +18,8 @@ public class UserAggregationController {
     @GetMapping("/{userId}")
     public ResponseEntity<UserWithActivitiesResponse> getUserDashboard(@PathVariable String userId) {
         log.info("Received request to fetch dashboard for userId: {}", userId);
-
         UserWithActivitiesResponse response = userAggregationService.getUserWithActivities(userId);
-
-        log.info("Returning dashboard for userId: {} with {} activities",
-                userId, response.getActivities().size());
-
+        log.info("Returning dashboard for userId: {} with {} activities", userId, response.getActivities());
         return ResponseEntity.ok(response);
     }
 }
