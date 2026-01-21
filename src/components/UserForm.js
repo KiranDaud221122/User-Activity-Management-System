@@ -6,7 +6,8 @@ const UserForm = ({ existingUser, onSuccess }) => {
   const [formData, setFormData] = useState(existingUser || { 
     name: '', 
     email: '', 
-    contactNumber: '' 
+    contactNumber: '', 
+    password: '' 
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,17 @@ const UserForm = ({ existingUser, onSuccess }) => {
       return;
     }
 
+    // For new users, validate password
+    if (!existingUser && !formData.password.trim()) {
+      setError('Password is required for new users');
+      return;
+    }
+
+    if (!existingUser && formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
@@ -36,12 +48,14 @@ const UserForm = ({ existingUser, onSuccess }) => {
     setLoading(true);
     try {
       if (existingUser) {
-        await updateUser(existingUser.id, formData);
+        // Don't send password for updates
+        const { password, ...updateData } = formData;
+        await updateUser(existingUser.id, updateData);
+        onSuccess && onSuccess();
       } else {
         await createUser(formData);
-        navigate('/');
+        navigate('/login');
       }
-      onSuccess && onSuccess();
     } catch (err) {
       setError(err.response?.data?.message || 'Error saving user. Please try again.');
     } finally {
@@ -53,7 +67,7 @@ const UserForm = ({ existingUser, onSuccess }) => {
     if (existingUser) {
       setFormData(existingUser);
     } else {
-      setFormData({ name: '', email: '', contactNumber: '' });
+      setFormData({ name: '', email: '', contactNumber: '', password: '' });
     }
     setError('');
   };
@@ -64,7 +78,7 @@ const UserForm = ({ existingUser, onSuccess }) => {
     <div className="user-form-container">
       {/* Header */}
       <div className="form-header">
-        <h2>{isUpdateMode ? 'Update User' : 'Create New User'}</h2>
+        <h2>{isUpdateMode ? 'Update User' : 'Create Account'}</h2>
         {isUpdateMode && (
           <div className="user-id">ID: #{existingUser.id}</div>
         )}
@@ -127,14 +141,33 @@ const UserForm = ({ existingUser, onSuccess }) => {
           />
         </div>
 
+        {!isUpdateMode && (
+          <div className="form-group">
+            <label htmlFor="password">
+              Password <span className="required">*</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password (min 6 characters)"
+              disabled={loading}
+              required
+            />
+            <small className="form-hint">Password must be at least 6 characters</small>
+          </div>
+        )}
+
         <div className="form-actions">
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(isUpdateMode ? `/user/${existingUser.id}` : '/')}
             disabled={loading}
           >
-            Cancel
+            {isUpdateMode ? 'Cancel' : 'Back'}
           </button>
           <button
             type="button"
@@ -155,10 +188,23 @@ const UserForm = ({ existingUser, onSuccess }) => {
                 {isUpdateMode ? 'Updating...' : 'Creating...'}
               </>
             ) : (
-              isUpdateMode ? 'Update User' : 'Create User'
+              isUpdateMode ? 'Update User' : 'Create Account'
             )}
           </button>
         </div>
+
+        {!isUpdateMode && (
+          <div className="login-link">
+            Already have an account?{' '}
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => navigate('/login')}
+            >
+              Sign In
+            </button>
+          </div>
+        )}
       </form>
 
       <style jsx>{`
@@ -168,7 +214,7 @@ const UserForm = ({ existingUser, onSuccess }) => {
           border: 1px solid #dee2e6;
           overflow: hidden;
           max-width: 500px;
-          margin: 0 auto;
+          margin: 2rem auto;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
@@ -252,8 +298,11 @@ const UserForm = ({ existingUser, onSuccess }) => {
           cursor: not-allowed;
         }
 
-        .form-group input::placeholder {
-          color: #adb5bd;
+        .form-hint {
+          display: block;
+          margin-top: 0.25rem;
+          color: #6c757d;
+          font-size: 0.875rem;
         }
 
         /* Form Actions */
@@ -263,6 +312,7 @@ const UserForm = ({ existingUser, onSuccess }) => {
           padding-top: 1.5rem;
           border-top: 1px solid #e9ecef;
           margin-top: 1rem;
+          margin-bottom: 1rem;
         }
 
         .btn {
@@ -315,6 +365,29 @@ const UserForm = ({ existingUser, onSuccess }) => {
           background: #f8f9fa;
         }
 
+        /* Login Link */
+        .login-link {
+          text-align: center;
+          padding-top: 1rem;
+          border-top: 1px solid #e9ecef;
+          color: #6c757d;
+          font-size: 0.95rem;
+        }
+
+        .link-btn {
+          background: none;
+          border: none;
+          color: #2B7A78;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0;
+          text-decoration: underline;
+        }
+
+        .link-btn:hover {
+          color: #3AAFA9;
+        }
+
         /* Loading Spinner */
         .spinner {
           width: 16px;
@@ -336,6 +409,7 @@ const UserForm = ({ existingUser, onSuccess }) => {
             border-left: none;
             border-right: none;
             max-width: 100%;
+            margin: 0;
           }
 
           .form-header {
