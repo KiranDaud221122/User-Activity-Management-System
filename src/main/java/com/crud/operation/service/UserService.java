@@ -6,6 +6,7 @@ import com.crud.operation.entity.UserEntity;
 import com.crud.operation.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto create(UserRequestDto requestDto) {
         log.info("Creating user with email: {}", requestDto.getEmail());
@@ -39,6 +41,7 @@ public class UserService {
         user.setName(requestDto.getName());
         user.setEmail(requestDto.getEmail());
         user.setContactNumber(requestDto.getContactNumber());
+        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
 
         UserEntity savedUser = userRepository.save(user);
 
