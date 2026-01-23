@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.engine.internal.Nullability;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +32,9 @@ public class UserEntity {
 
     @Column(nullable = false, unique = true)
     private String contactNumber;
+
+    @Column(nullable = false)
+    private String password;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
